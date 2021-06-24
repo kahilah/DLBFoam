@@ -71,7 +71,7 @@ public:
     // Constructors
 
         //- Construct from thermo
-        ode_LAPACK(const typename ChemistryModel::reactionThermo& thermo);
+        ode_LAPACK(const fluidReactionThermo& thermo);
 
 
     //- Destructor

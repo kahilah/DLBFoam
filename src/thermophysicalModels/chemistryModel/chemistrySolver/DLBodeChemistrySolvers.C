@@ -44,8 +44,8 @@ License
 
 namespace Foam
 {
-    forCoeffGases(defineChemistrySolvers, nullArg);
-    forCoeffLiquids(defineChemistrySolvers, nullArg);
+    forCoeffGases(makeChemistrySolvers, ode);
+    forCoeffLiquids(makeChemistrySolvers, ode);
 }
 
 

@@ -25,13 +25,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "volFields.H"
-#include "zeroGradientFvPatchFields.H"
+//#include "volFields.H"
+//#include "zeroGradientFvPatchFields.H"
+#include "OSspecific.H"
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template <class ThermoType>
-Foam::autoPtr<Foam::OFstream>
+inline Foam::autoPtr<Foam::OFstream>
 Foam::LoadBalancedChemistryModel<ThermoType>::logFile(
     const word& name) const
 {

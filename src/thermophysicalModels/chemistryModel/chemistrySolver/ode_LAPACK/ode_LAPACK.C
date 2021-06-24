@@ -28,7 +28,7 @@ License
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class ChemistryModel>
-Foam::ode_LAPACK<ChemistryModel>::ode_LAPACK(const typename ChemistryModel::reactionThermo& thermo)
+Foam::ode_LAPACK<ChemistryModel>::ode_LAPACK(const fluidReactionThermo& thermo)
 :
     chemistrySolver<ChemistryModel>(thermo),
     coeffsDict_(this->subDict("odeCoeffs")),

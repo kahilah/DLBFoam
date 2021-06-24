@@ -104,20 +104,20 @@ fi
 
 
 wmake libso src/thermophysicalModels/chemistryModel
-# wmake libso src/ODE_DLB
+wmake libso src/ODE_DLB
 
-# pushd tests/validation/pyjacTests/pyjacTestMechanism  > /dev/null
-#     ./runCmake.sh
-# popd  > /dev/null
+pushd tests/validation/pyjacTests/pyjacTestMechanism  > /dev/null
+    ./runCmake.sh
+popd  > /dev/null
 
-# wmake tests/unittests
+wmake tests/unittests
 
-# wmake tests/validation/pyjacTests/PSRTest
+wmake tests/validation/pyjacTests/PSRTest
 
-# pushd tests/unittests  > /dev/null
-#     ./test.sh
-# popd  > /dev/null
+pushd tests/unittests  > /dev/null
+    ./test.sh
+popd  > /dev/null
 
-# pushd tests/validation/pyjacTests/PSRTest  > /dev/null
-#     ./runTests.sh
-# popd  > /dev/null
+pushd tests/validation/pyjacTests/PSRTest  > /dev/null
+    ./runTests.sh
+popd  > /dev/null

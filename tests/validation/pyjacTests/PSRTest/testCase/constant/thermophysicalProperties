@@ -26,6 +26,8 @@ thermoType
     specie          specie;
 }
 
+defaultSpecie N2;
+
 #include "../../../pyjacTestMechanism/foam_files/chem.foam"
 #include "../../../pyjacTestMechanism/foam_files/thermo.foam"
 

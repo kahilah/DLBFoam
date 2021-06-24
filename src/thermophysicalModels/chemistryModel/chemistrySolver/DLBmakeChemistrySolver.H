@@ -82,25 +82,23 @@ License
     defineChemistrySolver                                                      \
     (                                                                          \
         pyJacLoadBalancedChemistryModel,                                       \
-        ReactionThermo,                                                        \
         ThermoPhysics                                                          \
     )
 
-#define makeChemistrySolvers(Solver, ReactionThermo, ThermoPhysics)            \
+
+#define makeChemistrySolvers(Solver, ThermoPhysics)                            \
     makeChemistrySolver                                                        \
     (                                                                          \
         Solver,                                                                \
         LoadBalancedChemistryModel,                                            \
-        ReactionThermo,                                                        \
         ThermoPhysics                                                          \
     );                                                                         \
     makeChemistrySolver                                                        \
     (                                                                          \
         Solver,                                                                \
         pyJacLoadBalancedChemistryModel,                                       \
-        ReactionThermo,                                                        \
         ThermoPhysics                                                          \
-    )                                                               
+    )
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

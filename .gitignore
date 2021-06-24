@@ -2,11 +2,16 @@
 src/**/lnInclude
 src/**/Make/linux64*
 tests/**/*/Make/linux64*
+tests/**/*/Make/linuxArm64*
 src/ODE_DLB/Make/options
 src/**/*/lnInclude
 src/**/*/Make/linux64*
+src/**/*/Make/linuxArm64*
 applications/solvers/**/*/Make/linux64*
 applications/utilities/**/Make/linux64*
+applications/solvers/**/*/Make/linuxArm64*
+applications/utilities/**/Make/linuxArm64*
+
 tutorials/
 tests/validation/pyjacTests/PSRTest/testCase/0
 
