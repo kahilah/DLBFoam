@@ -27,24 +27,23 @@ License
 #include "LoadBalancedChemistryModel.H"
 #include "pyJacLoadBalancedChemistryModel.H"
 
-#include "psiReactionThermo.H"
-#include "rhoReactionThermo.H"
+//#include "psiReactionThermo.H"
+//#include "rhoReactionThermo.H"
 
-#include "forCommonGases.H"
-#include "forCommonLiquids.H"
-#include "forPolynomials.H"
+//#include "forCommonGases.H"
+//#include "forCommonLiquids.H"
+//#include "forPolynomials.H"
+#include "forGases.H"
+#include "forLiquids.H"
+
 #include "DLBmakeChemistrySolver.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    forCommonGases(makeChemistrySolvers, ode_LAPACK, psiReactionThermo);
-    forCommonGases(makeChemistrySolvers, ode_LAPACK, rhoReactionThermo);
-
-    forCommonLiquids(makeChemistrySolvers, ode_LAPACK, rhoReactionThermo);
-
-    forPolynomials(makeChemistrySolvers, ode_LAPACK, rhoReactionThermo);
+    forCoeffGases(defineChemistrySolvers, nullArg);
+    forCoeffLiquids(defineChemistrySolvers, nullArg);
 }
 
 

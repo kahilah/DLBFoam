@@ -63,7 +63,7 @@ License
         0                                                                      \
     );                                                                         \
                                                                                \
-    BasicChemistryModel<ReactionThermo>::                                      \
+    basicChemistryModel<ReactionThermo>::                                      \
         addthermoConstructorToTable                                            \
         <Solver##Model##ReactionThermo##ThermoPhysics>                         \
         add##Solver##Model##ReactionThermo##ThermoPhysics##\
