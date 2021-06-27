@@ -27,12 +27,6 @@ License
 #include "LoadBalancedChemistryModel.H"
 #include "pyJacLoadBalancedChemistryModel.H"
 
-//#include "psiReactionThermo.H"
-//#include "rhoReactionThermo.H"
-
-//#include "forCommonGases.H"
-//#include "forCommonLiquids.H"
-//#include "forPolynomials.H"
 #include "forGases.H"
 #include "forLiquids.H"
 

@@ -25,8 +25,6 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-//#include "volFields.H"
-//#include "zeroGradientFvPatchFields.H"
 #include "OSspecific.H"
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
