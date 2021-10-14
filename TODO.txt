@@ -5,10 +5,7 @@ then introduce ct2foam and lastly the examples.
 
 - two tutorials should share same files --now double
 
-
-- remove 0dtest
-
-- remove rankbased figure to a separate doc folder
+- tutorial Allrun scripts use same check_of function which should be unified with the Allwmake.
 
 - Fix README controldict example with unified ct2foam output
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Ensure the use of OpenFOAM 9, so that gri tutorial is present in $FOAM_TUTORIALS
 OF_VER="9"
@@ -10,7 +10,7 @@ check_openfoam()
         exit 1
     fi
 
-    if [[ ! "$WM_PROJECT_VERSION" == "$OF_VER" ]]; then
+    if [ ! "$WM_PROJECT_VERSION" == "$OF_VER" ]; then
         echo "Error: OpenFOAM-$WM_PROJECT_VERSION not supported."
         echo "       See other git branches for potential support."
         exit 1

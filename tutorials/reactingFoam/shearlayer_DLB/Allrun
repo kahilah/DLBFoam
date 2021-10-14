@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 blockMesh
 N_PROCS=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
