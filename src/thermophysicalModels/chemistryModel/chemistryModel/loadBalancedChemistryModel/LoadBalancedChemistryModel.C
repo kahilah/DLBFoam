@@ -64,8 +64,28 @@ Foam::LoadBalancedChemistryModel<ThermoType>::
             this->mesh(),
             scalar(0.0)
         ),
-        nSpecie_(this->nSpecie())
+        nSpecie_(this->nSpecie()),
+        mechRedActive_(this->mechRed().active()),
+        tabulationActive_(this->isDict("tabulation"))
     {
+        if(tabulationActive_)
+        {
+            FatalErrorIn
+            (
+                "LoadBalancedChemistryModel::New"
+            )   << "\nNo support for ISAT tabulation is implemented."
+                << exit(FatalError);
+        }
+
+        if(mechRedActive_)
+        {
+            FatalErrorIn
+            (
+                "LoadBalancedChemistryModel::New"
+            )   << "\nNo support for mechanism reduction is implemented."
+                << exit(FatalError);
+        }
+
         if(balancer_.log())
         {
             cpuSolveFile_ = logFile("cpu_solve.out");

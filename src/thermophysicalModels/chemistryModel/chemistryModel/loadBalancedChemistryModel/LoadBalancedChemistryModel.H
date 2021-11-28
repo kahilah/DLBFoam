@@ -138,7 +138,10 @@ protected:
     //  initialisation, change from private to protected is considered.
     const label nSpecie_;
 
+    bool mechRedActive_;
 
+    bool tabulationActive_;
+    
 public:
 
     //- Runtime type information

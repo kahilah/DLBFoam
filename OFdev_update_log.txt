@@ -3,7 +3,8 @@ November 2021: changes due to unification of chemistryModel and TDACChemistryMod
   derived class (such as DLBChemistryModel). Hence, we redefine access to such variables.
   - Be careful not to declare variables twice due to inheritance. Work with referenced variables to avoid copying 
     and poor memory use.
-  - you should add checks that mech red = true is not accepted
+- because TDAC capabilities are now merged to the standard chemistry model class, it was necessary to implement checks 
+  for reduction and tabulation and throw error if they are active.
 - src/transportModels does not exist anymore
 
 Modifications required since the working OF-8 version:
