@@ -34,21 +34,22 @@ namespace Foam {
 template <class ThermoType>
 pyJacLoadBalancedChemistryModel<ThermoType>::pyJacLoadBalancedChemistryModel(
     const fluidReactionThermo& thermo)
-    : LoadBalancedChemistryModel<ThermoType>(thermo)
-    , sp_enth_form(this->nSpecie_) {
+    : LoadBalancedChemistryModel<ThermoType>(thermo),
+    sp_enth_form(this->nSpecie_),
+    c_(this->nSpecie_)
+    {
+        if (this->chemistry_) {
+            // TODO: prevent symbol look-up error in case of ill mechanism library compilation or wrong path
+            // 1) Instead of providing libc_pyjac.so in controlDict, it should be given in chemistryProperties as a lib() argument (similar to functionObjects).
+            // 2) Read the new lib() as dictionary path variable here in the constructor.
+            // 3) Implement here "is_pyjac_lib_available(pyjac_lib_path)": 
+            //      - utilise dlopen for the test, see e.g. https://stackoverflow.com/questions/56747328/loading-shared-library-dynamically-using-dlopen
+            // 4) If library is not available, safe exit and print out "check your libc_pyjac.so path in chemistryProperties."
 
-    if (this->chemistry_) {
-        // TODO: prevent symbol look-up error in case of ill mechanism library compilation or wrong path
-        // 1) Instead of providing libc_pyjac.so in controlDict, it should be given in chemistryProperties as a lib() argument (similar to functionObjects).
-        // 2) Read the new lib() as dictionary path variable here in the constructor.
-        // 3) Implement here "is_pyjac_lib_available(pyjac_lib_path)": 
-        //      - utilise dlopen for the test, see e.g. https://stackoverflow.com/questions/56747328/loading-shared-library-dynamically-using-dlopen
-        // 4) If library is not available, safe exit and print out "check your libc_pyjac.so path in chemistryProperties."
-
-        //- Enthalpy of formation is taken from pyJac at T-standard
-        std::vector<scalar> sp_enth_form_(this->nSpecie_, 0.0);
-        eval_h(298.15, sp_enth_form_.data());
-        for (label i = 0; i < this->nSpecie_; i++) { sp_enth_form[i] = sp_enth_form_[i]; }
+            //- Enthalpy of formation is taken from pyJac at T-standard
+            std::vector<scalar> sp_enth_form_(this->nSpecie_, 0.0);
+            eval_h(298.15, sp_enth_form_.data());
+            for (label i = 0; i < this->nSpecie_; i++) { sp_enth_form[i] = sp_enth_form_[i]; }
     }
     
     Info << "Overriding standardChemistryModel by pyJacLoadBalancedChemistryModel:" << endl; 
@@ -89,17 +90,16 @@ void pyJacLoadBalancedChemistryModel<ThermoType>::jacobian(
     scalar csum = 0.0;
 
     for (label i = 0; i < this->nSpecie_ - 1; i++) {
-        this->c_[i] = max(c[i + 1], 0);
-        csum += this->c_[i];
+        c_[i] = max(c[i + 1], 0);
+        csum += c_[i];
     }
 
-    this->c_[this->nSpecie_ - 1] = 1.0 - csum; // The last specie
+    c_[this->nSpecie_ - 1] = 1.0 - csum; // The last specie
     yToPyJac[0]                  = T;
     // i=1->nSpecie are mass fractions
-    for (label i = 1; i < this->nSpecie_; i++) { yToPyJac[i] = this->c_[i - 1]; }
+    for (label i = 1; i < this->nSpecie_; i++) { yToPyJac[i] = c_[i - 1]; }
     // The last specie
-
-    yToPyJac[this->nSpecie_] = this->c_[this->nSpecie_ - 1];
+    yToPyJac[this->nSpecie_] = c_[this->nSpecie_ - 1];
     // call pyJac Jacobian evaluation
     eval_jacob(0, p, yToPyJac.data(), jac.data());
     label k = 0;
@@ -127,16 +127,16 @@ void pyJacLoadBalancedChemistryModel<ThermoType>::derivatives(
     const scalar p = c[this->nSpecie_];
     scalar csum = 0.0;
     for (label i = 0; i < this->nSpecie_ - 1; i++) {
-        this->c_[i] = max(c[i + 1], 0.0);
-        csum += this->c_[i];
+        c_[i] = max(c[i + 1], 0.0);
+        csum += c_[i];
     }
-    this->c_[this->nSpecie_ - 1] = 1.0 - csum; // The last specie
+    c_[this->nSpecie_ - 1] = 1.0 - csum; // The last specie
 
     yToPyJac[0] = T;
     // i=1->nSpecie are mass fractions
-    for (label i = 1; i < this->nSpecie_; i++) { yToPyJac[i] = this->c_[i - 1]; }
+    for (label i = 1; i < this->nSpecie_; i++) { yToPyJac[i] = c_[i - 1]; }
     // The last specie
-    yToPyJac[this->nSpecie_] = this->c_[this->nSpecie_ - 1];
+    yToPyJac[this->nSpecie_] = c_[this->nSpecie_ - 1];
 
     // call pyJac RHS function
     dydt(0, p, yToPyJac.data(), dy.data());
@@ -162,15 +162,18 @@ pyJacLoadBalancedChemistryModel<ThermoType>::Qdot() const {
     if (this->chemistry_) {
         scalarField& Qdot = tQdot.ref();
 
-        forAll(this->Y_, i) {
-            forAll(Qdot, celli) { Qdot[celli] -= sp_enth_form[i] * this->RR_[i][celli]; }
+        for (label i = 0; i < this->nSpecie_; i++) {
+            const DimensionedField<scalar, volMesh>& RR_ = this->RR(i);
+            forAll(Qdot, celli) 
+            {
+                Qdot[celli] -= sp_enth_form[i] * RR_[celli]; 
+            }
         }
     }
 
     return tQdot;
 }
 
-// TODO: Make this work for pyjac
 template <class ThermoType>
 void Foam::pyJacLoadBalancedChemistryModel<ThermoType>::updateReactionRate
 (
@@ -179,7 +182,8 @@ void Foam::pyJacLoadBalancedChemistryModel<ThermoType>::updateReactionRate
 {
     for(label j = 0; j < this->nSpecie_; j++)
     {
-        this->RR_[j][i] = solution.c_increment[j] * solution.rhoi;
+        volScalarField::Internal& RR_= this->RR(j);
+        RR_[i] = solution.c_increment[j] * solution.rhoi;
     }
     this->deltaTChem_[i] = min(solution.deltaTChem, this->deltaTChemMax_);
 }

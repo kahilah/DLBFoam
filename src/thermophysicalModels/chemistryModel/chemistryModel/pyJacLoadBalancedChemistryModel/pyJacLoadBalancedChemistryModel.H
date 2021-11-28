@@ -102,6 +102,9 @@ private:
     ///
     scalarList sp_enth_form;
 
+    //- Temporary primary variable field
+    mutable scalarField c_;
+
     //- Update the reaction rate of cell i
     void
     updateReactionRate(const ChemistrySolution& solution, const label& i);

@@ -33,9 +33,11 @@ template <class ThermoType>
 Foam::LoadBalancedChemistryModel<ThermoType>::
     LoadBalancedChemistryModel(const fluidReactionThermo& thermo)
     : 
-        standardChemistryModel<ThermoType>(thermo),
+        chemistryModel<ThermoType>(thermo),
         balancer_(createBalancer()), 
         mapper_(createMapper(this->thermo())),
+        Y_(this->thermo().composition().Y()),
+        specieThermos_(this->specieThermos()),
         cpuTimes_
         (
             IOobject
@@ -61,7 +63,8 @@ Foam::LoadBalancedChemistryModel<ThermoType>::
             ),
             this->mesh(),
             scalar(0.0)
-        )
+        ),
+        nSpecie_(this->nSpecie())
     {
         if(balancer_.log())
         {
@@ -187,7 +190,7 @@ Foam::scalar Foam::LoadBalancedChemistryModel<ThermoType>::solve
         incomingSolutions.append(solveList(allProblems));
         t_solveBuffer = timer.timeIncrement();
     }
-        
+
     if(balancer_.log())
     {
         if(balancer_.active())
@@ -195,7 +198,7 @@ Foam::scalar Foam::LoadBalancedChemistryModel<ThermoType>::solve
             balancer_.printState();
         }
         cpuSolveFile_() << setw(22)
-                        << this->time().timeOutputValue()<<tab
+                        << this->time().userTimeValue()<<tab
                         << setw(22) << t_getProblems<<tab
                         << setw(22) << t_updateState<<tab
                         << setw(22) << t_balance<<tab
@@ -325,7 +328,7 @@ Foam::LoadBalancedChemistryModel<ThermoType>::solveList
 ) const
 {
     DynamicList<ChemistrySolution> solutions(
-        problems.size(), ChemistrySolution(this->nSpecie_));
+        problems.size(), ChemistrySolution(nSpecie_));
 
     for(label i = 0; i < problems.size(); ++i)
     {
@@ -348,27 +351,24 @@ Foam::LoadBalancedChemistryModel<ThermoType>::getProblems
     const scalarField& p = this->thermo().p();
     tmp<volScalarField> trho(this->thermo().rho());
     const scalarField& rho = trho();
-    
-
 
     DynamicList<ChemistryProblem> solved_problems;
     DynamicList<ChemistryProblem> mapped_problems;
 
-    solved_problems.resize(p.size(), ChemistryProblem(this->nSpecie_));
+    solved_problems.resize(p.size(), ChemistryProblem(nSpecie_));
 
-    scalarField massFraction(this->nSpecie_);
-    scalarField concentration(this->nSpecie_);
+    scalarField massFraction(nSpecie_);
+    scalarField concentration(nSpecie_);
 
     label counter = 0;
     forAll(T, celli)
     {
-
         if(T[celli] > this->Treact())
         {
-            for(label i = 0; i < this->nSpecie_; i++)
+            for(label i = 0; i < nSpecie_; i++)
             {
-                concentration[i] = rho[celli] * this->Y_[i][celli] / this->specieThermos_[i].W();
-                massFraction[i] = this->Y_[i][celli];
+                concentration[i] = rho[celli] * Y_[i][celli] / specieThermos_[i].W();
+                massFraction[i] = Y_[i][celli];
             }
             
             ChemistryProblem problem;
@@ -401,7 +401,8 @@ Foam::LoadBalancedChemistryModel<ThermoType>::getProblems
         {
             for(label i = 0; i < this->nSpecie(); i++)
             {
-                this->RR_[i][celli] = 0;
+                DimensionedField<scalar, volMesh>& RR_= this->RR(i);
+                RR_[celli] = 0;
             }
         }
 
@@ -413,7 +414,7 @@ Foam::LoadBalancedChemistryModel<ThermoType>::getProblems
     runtime_assert(solved_problems.size() + mapped_problems.size() == p.size(), "getProblems fails");
 
     this->map(mapped_problems, solved_problems);
-    
+
 
     return solved_problems;
 }
@@ -431,8 +432,7 @@ void Foam::LoadBalancedChemistryModel<ThermoType>::map
 
         ChemistryProblem refProblem = mapped_problems[0];
         scalar refTemperature = refProblem.Ti;
-
-        ChemistrySolution refSolution(this->nSpecie_);
+        ChemistrySolution refSolution(nSpecie_);
         solveSingle(refProblem, refSolution);
         refMap_[refProblem.cellid] = 0;
 
@@ -462,9 +462,10 @@ void Foam::LoadBalancedChemistryModel<ThermoType>::updateReactionRate
     const ChemistrySolution& solution, const label& i
 )
 {
-    for(label j = 0; j < this->nSpecie_; j++)
+    for(label j = 0; j < nSpecie_; j++)
     {
-        this->RR_[j][i] = solution.c_increment[j] * this->specieThermos_[j].W();
+        DimensionedField<scalar, volMesh>& RR_= this->RR(j);
+        RR_[i] = solution.c_increment[j] * specieThermos_[j].W();
     }
     this->deltaTChem_[i] = min(solution.deltaTChem, this->deltaTChemMax_);
 }

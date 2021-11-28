@@ -27,7 +27,7 @@ Class
     Foam::LoadBalancedChemistryModel
 
 Description
-    Extends standardChemistryModel model by adding a load balancing algorithm.
+    Extends ChemistryModel model by adding a load balancing algorithm.
 
 SourceFiles
     LoadBalancedChemistryModel.C
@@ -42,7 +42,7 @@ SourceFiles
 #include "LoadBalancer.H"
 #include "OFstream.H"
 #include "IOmanip.H"
-#include "standardChemistryModel.H"
+#include "chemistryModel.H"
 #include "clockTime.H"
 #include "mixtureFractionRefMapper.H"
 
@@ -58,7 +58,7 @@ namespace Foam
 template<class ThermoType>
 class LoadBalancedChemistryModel
 : 
-    public standardChemistryModel<ThermoType>
+    public chemistryModel<ThermoType>
 {
 
 private:
@@ -69,6 +69,12 @@ private:
 
         // Reference mapping object
         mixtureFractionRefMapper mapper_;
+
+        //- Reference to the field of specie mass fractions
+        const PtrList<volScalarField>& Y_;
+
+        //- Thermodynamic data of the species
+        const PtrList<ThermoType>& specieThermos_;
 
         // Field containing chemistry CPU time information    
         volScalarField cpuTimes_;
@@ -125,6 +131,12 @@ private:
         //      the mapping base class inherit from that. 
         void map(DynamicList<ChemistryProblem>& mapped_problems, DynamicList<ChemistryProblem>& solved_problems);
 
+protected:
+
+    //- Number of species
+    //- Note that nSpecie_ is required by pyjacLoadBalancer as well so to avoid duplicate 
+    //  initialisation, change from private to protected is considered.
+    const label nSpecie_;
 
 
 public:
@@ -152,7 +164,7 @@ public:
         void solveSingle(ChemistryProblem& problem, ChemistrySolution& solution) const;
 
         // Chemistry model functions (overriding functions in
-        // standardChemistryModel to use the private solve function)
+        // ChemistryModel to use the private solve function)
 
             //- Solve the reaction system for the given time step
             //  and return the characteristic time

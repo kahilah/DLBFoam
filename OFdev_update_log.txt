@@ -1,3 +1,11 @@
+November 2021: changes due to unification of chemistryModel and TDACChemistryModel
+- New chemistryModel class classifies all variables private which prevents access by 
+  derived class (such as DLBChemistryModel). Hence, we redefine access to such variables.
+  - Be careful not to declare variables twice due to inheritance. Work with referenced variables to avoid copying 
+    and poor memory use.
+  - you should add checks that mech red = true is not accepted
+- src/transportModels does not exist anymore
+
 Modifications required since the working OF-8 version:
 - gas / liquid definitions  https://github.com/OpenFOAM/OpenFOAM-dev/commit/fe89082f73c6c65320528632c1398ce938c4ebd3#diff-4869cbe262a9a1d9d85f809d95fd3d28447edbcfce29be2e5fd04cdc49216245
 - Standard -> standard https://github.com/OpenFOAM/OpenFOAM-dev/commit/07d583e9897b16212776860936424dca913c21b8#diff-f537bda90dec8bc2ad5fc20a5ff8cbf253fb6e19fa60ba16bf88ab7edb434989
