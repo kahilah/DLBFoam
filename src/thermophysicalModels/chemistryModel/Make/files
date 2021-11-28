@@ -14,6 +14,6 @@ chemistrySolver/DLBChemistrySolvers.C
 chemistrySolver/DLBnoChemistrySolvers.C
 
 chemistrySolver/DLBodeChemistrySolvers.C
-chemistrySolver/DLBodeLAPACKChemistrySolvers.C
+chemistrySolver/DLBodePyJacChemistrySolvers.C
 
 LIB = $(FOAM_USER_LIBBIN)/libchemistryModel_DLB
